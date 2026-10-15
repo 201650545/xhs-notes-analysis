@@ -1,9 +1,12 @@
+import os, sys as _s
+_s.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _credentials import get_cred  # noqa: E402
 import json, subprocess, os
 
 BASE = r"D:\workbuddy 工作空间"
-LARK = r"C:\Users\郭永涛\AppData\Roaming\TRAE SOLO CN\ModularData\ai-agent\vm\tools\bin\lark-cli.cmd"
-BASE_TOKEN = "StmDbTXQWaujshs9NpIc3UFpnAc"
-TABLE_ID = "tblcDvErvsmeynMz"
+LARK = r"C:\Users\<USER_NAME>\AppData\Roaming\TRAE SOLO CN\ModularData\ai-agent\vm\tools\bin\lark-cli.cmd"
+BASE_TOKEN = get_cred("FEISHU_BASE_TOKEN", "<FEISHU_BASE_TOKEN>")
+TABLE_ID = get_cred("FEISHU_TABLE_ID", "<FEISHU_TABLE_ID>")
 
 with open(os.path.join(BASE, "_dd_results_20260903.json"), "r", encoding="utf-8") as f:
     results = json.load(f)

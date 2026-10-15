@@ -1,3 +1,6 @@
+import os, sys as _s
+_s.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _credentials import get_cred  # noqa: E402
 # -*- coding: utf-8 -*-
 """统计小红书账号全部点赞历史（视频/笔记分类计数）。
 
@@ -15,9 +18,9 @@ from ctypes import wintypes
 
 API = "http://127.0.0.1:10086/command"
 SESSION = "xhs"
-UID = "6292cc04000000002102272a"
+UID = get_cred("XHS_USER_ID", "<XHS_USER_ID>")
 LIKED_URL = "https://www.xiaohongshu.com/user/profile/%s?tab=liked" % UID
-OUT = r"D:\Work\小红书点赞分析\_系统数据\_liked_all_full.json"
+OUT = r"<PROJECT_DIR>\_系统数据\_liked_all_full.json"
 
 user32 = ctypes.windll.user32
 kernel32 = ctypes.windll.kernel32
@@ -104,7 +107,7 @@ def os_wheel(delta=-120, x=1000, y=700, n=5):
 
 EXTRACT_JS = r"""
 (() => {
-  const uid = "6292cc04000000002102272a";
+  const uid = get_cred("XHS_USER_ID", "<XHS_USER_ID>");
   const items = [];
   const cards = document.querySelectorAll("section.note-item, div.note-item");
   cards.forEach((c) => {

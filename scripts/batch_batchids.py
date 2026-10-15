@@ -14,8 +14,8 @@ sys.argv = [sys.argv[0], "1", "0"]
 import batch_liked_100 as B
 sys.argv = _ORIG_ARGV
 
-OUT_DIR = r"D:\Work\小红书点赞分析\b_answers"
-SRC = r"D:\Work\小红书点赞分析\_系统数据\batch_ids_20261013.json"
+OUT_DIR = r"<PROJECT_DIR>\b_answers"
+SRC = r"<PROJECT_DIR>\_系统数据\batch_ids_20261013.json"
 
 
 def main():

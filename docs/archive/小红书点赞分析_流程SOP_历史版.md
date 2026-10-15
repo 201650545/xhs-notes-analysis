@@ -1,4 +1,4 @@
-# 小红书点赞每日总结 · 流程 SOP（固化版）
+﻿# 小红书点赞每日总结 · 流程 SOP（固化版）
 
 > 用途：定时任务「小红书点赞每日总结」每次执行的完整可复用流程。首次固化为 2026-08-30，基于当日 11 条新增视频成功执行的实践经验与调试产物（`_xhs_dd_inputs.json`、`_dd_send.py`、`_dd_extract.py`、`_xsec_links_20260830.json`）。
 > 目标：少浪费、快提取、快提问、结束后清理自己打开的标签页。
@@ -9,8 +9,8 @@
 
 | 项 | 值 |
 |---|---|
-| 赞过页 | `https://www.xiaohongshu.com/user/profile/{uid}?tab=liked`（当前 uid `6292cc04000000002102272a`） |
-| 飞书 Base | `StmDbTXQWaujshs9NpIc3UFpnAc`，表 `tblcDvErvsmeynMz` |
+| 赞过页 | `https://www.xiaohongshu.com/user/profile/{uid}?tab=liked`（当前 uid `<XHS_USER_ID>`） |
+| 飞书 Base | `<FEISHU_BASE_TOKEN>`，表 `<FEISHU_TABLE_ID>` |
 | lark-cli | 完整路径调用（见规则文件），`--as user`，`--format json`（勿用 ndjson） |
 | kimi-webbridge HTTP API | `POST http://127.0.0.1:10086/command`，body `{"action":"evaluate","args":{"code":"..."},"session":"xhs"}`，返回 `{"data":{"value":...}}` |
 | 点点对话 | 输入框 `textarea.textarea--v1-caret`；发送按钮 `div.submit-button-wrapper`；答案元素 `.ai-message`（取最后一条） |
@@ -65,7 +65,7 @@
 ## 3. 读取飞书已有记录（一次拿全）
 
 ```powershell
-& "C:\Users\郭永涛\.real\.bin\node\lark-cli.exe" base +record-list --base-token StmDbTXQWaujshs9NpIc3UFpnAc --table-id tblcDvErvsmeynMz --as user --format json
+& "C:\Users\<USER_NAME>\.real\.bin\node\lark-cli.exe" base +record-list --base-token <FEISHU_BASE_TOKEN> --table-id <FEISHU_TABLE_ID> --as user --format json
 ```
 （命令路径以当前项目规则文件为准。）取出全部已有记录的**链接**清单；缺链接的记录用**标题**兜底。保存快照供比对。
 
@@ -118,8 +118,8 @@
    ```python
    import subprocess
    cmd = [LARK_CLI, "base", "+record-batch-create",
-          "--base-token", "StmDbTXQWaujshs9NpIc3UFpnAc",
-          "--table-id", "tblcDvErvsmeynMz",
+          "--base-token", "<FEISHU_BASE_TOKEN>",
+          "--table-id", "<FEISHU_TABLE_ID>",
           "--json", payload_json, "--as", "user", "--format", "json"]
    subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8")
    ```

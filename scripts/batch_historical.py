@@ -24,7 +24,7 @@ sys.argv = _ORIG_ARGV
 
 API = "http://127.0.0.1:10086/command"
 SESSION = "xhs"
-OUT_DIR = r"D:\Work\小红书点赞分析\b_answers"
+OUT_DIR = r"<PROJECT_DIR>\b_answers"
 HIST_DIRS = [
     r"D:\workbuddy 工作空间\点点分析结果",
 ]

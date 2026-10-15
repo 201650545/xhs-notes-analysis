@@ -1,9 +1,9 @@
 <#
-  Quark Drive backup: D:\Work + D:\记忆 + A档资料 + listenloop 轻量包.
+  Quark Drive backup: D:\Work + <MEMORY_DIR> + A档资料 + listenloop 轻量包.
 
   Daily mirror (every 15 min since 2026-10-08):
     - D:\Work            -> /Work库备份/每日镜像/Work
-    - D:\记忆            -> /Work库备份/每日镜像/记忆库镜像
+    - <MEMORY_DIR>            -> /Work库备份/每日镜像/记忆库镜像
     - A档 12 目录        -> /Work库备份/每日镜像/重要资料/<目录名>
     - listenloop 轻量包  -> robocopy 剥离 build/.dart_tool/.gradle/.idea/dist 后
                             上传镜像目录 -> /Work库备份/每日镜像/重要资料/listenloop_镜像
@@ -11,7 +11,7 @@
                    cloud copy is additive, never deleted locally => undelete-safe)
   Weekly snapshot (Sunday, or -ForceSnapshot):
                   zip point-in-time archive -> /Work库备份/版本快照
-                  local copy kept under D:\Backup\Work快照, newest 8 retained
+                  local copy kept under <BACKUP_DIR>Work快照, newest 8 retained
                   (versioned rollback for accidental edit/delete/corruption)
 
   FIDs are session-scoped, so target folders are located by browse at every run
@@ -28,10 +28,10 @@ $ErrorActionPreference = 'Stop'
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 $OutputEncoding = [Text.Encoding]::UTF8
 
-$cli       = 'c:\Users\郭永涛\.trae-cn\skills\quarkclouddrive\scripts\quark-drive.cjs'
+$cli       = 'c:\Users\<USER_NAME>\.trae-cn\skills\quarkclouddrive\scripts\quark-drive.cjs'
 $nodeExe   = 'D:\Program Files\nodejs\node.exe'
 $src       = 'D:\Work'
-$srcMem    = 'D:\记忆'   # 2026-10-08 新增：第二个 Obsidian 仓库纳入每日镜像
+$srcMem    = '<MEMORY_DIR>'   # 2026-10-08 新增：第二个 Obsidian 仓库纳入每日镜像
 # 2026-10-08 A档拍板：小而珍贵资料纳入每日镜像（云端落 /每日镜像/重要资料/）
 $assetSources = @(
   'D:\毕业论文', 'D:\ai-hub-memory', 'D:\项目', 'D:\口语训练',
@@ -41,9 +41,9 @@ $assetSources = @(
 )
 # 2026-10-08 B档拍板：listenloop 只传轻量包（robocopy 镜像剥离构建产物后上传）
 $llSrc    = 'D:\listenloop'
-$llMirror = 'D:\Backup\listenloop_镜像'
+$llMirror = '<BACKUP_DIR>listenloop_镜像'
 $llXd     = @('build', '.dart_tool', '.gradle', '.idea', 'dist', '.pub-cache', '.dart_tool_c', 'Pods')
-$localSnap = 'D:\Backup\Work快照'
+$localSnap = '<BACKUP_DIR>Work快照'
 $logDir    = Join-Path $PSScriptRoot 'logs'
 $keep      = 8
 $today     = Get-Date

@@ -55,7 +55,7 @@ with open(os.path.join(BASE, "review_batch_%s.tsv" % BATCH), "w", encoding="utf-
                     "suggestion": final[nid], "reason": reason,
                     "what": f1.get("what", ""), "use": f1.get("use", ""),
                     "next": "", "cost": f1.get("pitfall", ""),
-                    "fulltext": r"D:\Work\小红书点赞分析\b_answers\%s.txt" % nid})
+                    "fulltext": r"<PROJECT_DIR>\b_answers\%s.txt" % nid})
 
 vp = os.path.join(BASE, "verdicts", "verdict_%s_final.json" % BATCH)
 os.makedirs(os.path.dirname(vp), exist_ok=True)

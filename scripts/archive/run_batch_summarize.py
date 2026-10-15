@@ -1,3 +1,6 @@
+import os, sys as _s
+_s.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _credentials import get_cred  # noqa: E402
 # -*- coding: utf-8 -*-
 import json
 import os
@@ -8,16 +11,16 @@ import urllib.request
 from datetime import datetime
 
 API = 'http://127.0.0.1:10086/command'
-LARK_CLI = r"C:\Users\郭永涛\AppData\Roaming\TRAE SOLO CN\ModularData\ai-agent\vm\tools\bin\lark-cli.cmd"
-BASE_TOKEN = "StmDbTXQWaujshs9NpIc3UFpnAc"
-TABLE_ID = "tblcDvErvsmeynMz"
+LARK_CLI = r"C:\Users\<USER_NAME>\AppData\Roaming\TRAE SOLO CN\ModularData\ai-agent\vm\tools\bin\lark-cli.cmd"
+BASE_TOKEN = get_cred("FEISHU_BASE_TOKEN", "<FEISHU_BASE_TOKEN>")
+TABLE_ID = get_cred("FEISHU_TABLE_ID", "<FEISHU_TABLE_ID>")
 DATE_STR = datetime.now().strftime("%Y-%m-%d")
 DATE_COMPACT = datetime.now().strftime("%Y%m%d")
 
 RAW_DIR = os.path.join(r"D:\workbuddy 工作空间\点点分析结果", f"raw_{DATE_COMPACT}")
 os.makedirs(RAW_DIR, exist_ok=True)
 
-PROGRESS_FILE = r"D:\Work\小红书点赞分析\_batch_progress.json"
+PROGRESS_FILE = r"<PROJECT_DIR>\_batch_progress.json"
 
 def call(action, args=None, session='xhs'):
     payload = {'action': action, 'session': session}
@@ -139,7 +142,7 @@ def extract_summary_and_tags(full_reply, title=""):
     return summary_text, tag_str
 
 def main():
-    with open(r"D:\Work\小红书点赞分析\_new_items.json", "r", encoding="utf-8") as f:
+    with open(r"<PROJECT_DIR>\_new_items.json", "r", encoding="utf-8") as f:
         data = json.load(f)
 
     max_seq = data['max_seq']
@@ -251,7 +254,7 @@ def main():
 
     report_content = "\n".join(report_lines)
     
-    report_path1 = os.path.join(r"D:\Work\小红书点赞分析\reports", f"小红书点赞分析_{DATE_STR}.md")
+    report_path1 = os.path.join(r"<PROJECT_DIR>\reports", f"小红书点赞分析_{DATE_STR}.md")
     report_path2 = os.path.join(r"D:\workbuddy 工作空间", f"小红书点赞分析_{DATE_STR}.md")
     with open(report_path1, "w", encoding="utf-8") as rf:
         rf.write(report_content)
@@ -278,7 +281,7 @@ def main():
         ])
 
     payload = {"fields": fields, "rows": rows}
-    temp_payload_file = r"D:\Work\小红书点赞分析\_lark_batch_payload.json"
+    temp_payload_file = r"<PROJECT_DIR>\_lark_batch_payload.json"
     with open(temp_payload_file, "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False)
 

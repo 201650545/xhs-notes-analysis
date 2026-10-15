@@ -1,5 +1,5 @@
 $ErrorActionPreference = 'Stop'
-$base = 'D:\Work\小红书点赞分析'
+$base = '<PROJECT_DIR>'
 $vault = 'D:\Work'
 $enc = New-Object Text.UTF8Encoding($false)
 $data = Join-Path $base '_系统数据'

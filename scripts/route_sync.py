@@ -1,3 +1,6 @@
+import os, sys as _s
+_s.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _credentials import get_cred  # noqa: E402
 # -*- coding: utf-8 -*-
 """行动路由 + 单条入库（GPT 七步法的第 2、7 步）
 
@@ -11,7 +14,7 @@
 """
 import os, re, sys, json, subprocess, datetime
 
-BASE = r"D:\Work\小红书点赞分析"
+BASE = r"<PROJECT_DIR>"
 DATA = os.path.join(BASE, "_系统数据")  # 管线 JSON 系统数据（2026-09-28 起统一收纳，勿移出）
 ANS = os.path.join(BASE, "b_answers")
 ROUTE_FILE = os.path.join(DATA, "_routing.json")
@@ -23,9 +26,9 @@ SNAP_FILE = os.path.join(DATA, "_liked_snapshot.json")
 TIER_LARK = {"sensitive": "高（福利/版本类）", "normal": "低（长期有效类）"}
 VERDICT_BADGE = {"有效": "✅ 仍有效", "已失效": "❌ 已失效", "已升级": "⬆️ 已升级",
                  "无法核实": "❓ 未能核实"}
-CLI = r"C:\Users\郭永涛\.trae-cn\plugins\trae-remote-official\lark\1.0.5\bin\lark-cli.exe"
-BASE_TOKEN = "StmDbTXQWaujshs9NpIc3UFpnAc"
-TABLE_ID = "tblcDvErvsmeynMz"
+CLI = r"C:\Users\<USER_NAME>\.trae-cn\plugins\trae-remote-official\lark\1.0.5\bin\lark-cli.exe"
+BASE_TOKEN = get_cred("FEISHU_BASE_TOKEN", "<FEISHU_BASE_TOKEN>")
+TABLE_ID = get_cred("FEISHU_TABLE_ID", "<FEISHU_TABLE_ID>")
 
 ROUTE_KEYS = ["路由", "处理意图", "优先级", "时效", "行动成本",
               "最小下一步", "复刻目标", "核心知识", "路由理由"]

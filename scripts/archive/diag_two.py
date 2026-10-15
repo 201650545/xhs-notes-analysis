@@ -2,11 +2,11 @@
 """最后2顽固篇手动单发诊断"""
 import json, urllib.request
 
-SYSTEM = open(r"D:\Work\小红书点赞分析\scripts\judge_gateway.py", encoding="utf-8").read()
+SYSTEM = open(r"<PROJECT_DIR>\scripts\judge_gateway.py", encoding="utf-8").read()
 SYSTEM = SYSTEM.split('SYSTEM = """')[1].split('"""')[0]
 
 for nid in ["6a70512800000000060066a3", "6ab79ef300000000150042cb"]:
-    note = open(r"D:\Work\小红书点赞分析\b_answers\%s.txt" % nid, encoding="utf-8").read()[:5000]
+    note = open(r"<PROJECT_DIR>\b_answers\%s.txt" % nid, encoding="utf-8").read()[:5000]
     body = json.dumps({"model": "free-flash",
                        "messages": [{"role": "system", "content": SYSTEM},
                                     {"role": "user", "content": "笔记全文：\n%s\n\n按判据判定，只输出 JSON。" % note}],

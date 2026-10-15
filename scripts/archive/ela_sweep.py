@@ -17,7 +17,7 @@ IDS = [
     "6a9cbc7f0000000012034ec1", "6a9bfaf800000000280020e2", "6a9b8c3e000000002700a9a7",
     "6a968f86000000001200227a", "6a952a30000000002603769e", "6a94b3190000000024005e5a",
 ]
-OUT = r"D:\Work\小红书点赞分析\_系统数据\ela_notes"
+OUT = r"<PROJECT_DIR>\_系统数据\ela_notes"
 os.makedirs(OUT, exist_ok=True)
 API = "http://127.0.0.1:10086/command"
 

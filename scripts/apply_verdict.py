@@ -16,13 +16,16 @@ import subprocess
 import sys
 import time
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _credentials import get_cred  # noqa: E402
+
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(BASE, "_系统数据")
 COCKPIT = os.path.join(BASE, "00_项目驾驶舱_可视化中心")
 ANSWERS = os.path.join(BASE, "b_answers")
-LARK_EXE = r"C:\Users\郭永涛\.trae-cn\plugins\trae-remote-official\lark\1.0.5\bin\lark-cli.exe"
-LARK_BASE_TOKEN = "StmDbTXQWaujshs9NpIc3UFpnAc"
-LARK_TABLE_ID = "tblcDvErvsmeynMz"
+LARK_EXE = get_cred("LARK_CLI_PATH", r"<LARK_CLI_PATH>")
+LARK_BASE_TOKEN = get_cred("FEISHU_BASE_TOKEN", "<FEISHU_BASE_TOKEN>")
+LARK_TABLE_ID = get_cred("FEISHU_TABLE_ID", "<FEISHU_TABLE_ID>")
 LARK_CHUNK = 44  # SKILL.md §3：Windows 命令行长度上限，每批 ≤44 个 --record-id
 TODAY = time.strftime("%Y-%m-%d")
 
@@ -156,10 +159,32 @@ def main():
     ledger = jload(os.path.join(DATA, "_routing.json"))
     mapping = jload(os.path.join(DATA, "_lark_map.json"))
 
-    keep = [i for i in v.get("keep", []) if i in batch]
-    drop = [i for i in v.get("drop", []) if i in batch]
+    # 判决合法性硬校验（GPT-6 审查 20261015 建议，P0-2）
+    # 这四项在 dry-run 和 apply 阶段都执行，任一不通过立即拒执行
+    raw_keep = v.get("keep", [])
+    raw_drop = v.get("drop", [])
+    if len(raw_keep) != len(set(raw_keep)):
+        dup = sorted({i for i in raw_keep if raw_keep.count(i) > 1})
+        print("[exec] keep 中有重复 ID，拒执行：%s" % dup[:5])
+        return 3
+    if len(raw_drop) != len(set(raw_drop)):
+        dup = sorted({i for i in raw_drop if raw_drop.count(i) > 1})
+        print("[exec] drop 中有重复 ID，拒执行：%s" % dup[:5])
+        return 3
+    inter = set(raw_keep) & set(raw_drop)
+    if inter:
+        print("[exec] 同一笔记同时判留和判删，拒执行：%s" % sorted(inter)[:5])
+        return 3
+    known = set(batch.keys())
+    outside = (set(raw_keep) | set(raw_drop)) - known
+    if outside:
+        print("[exec] 判决包含批次外 ID（%d 个），拒执行：%s" % (len(outside), sorted(outside)[:5]))
+        return 3
+
+    keep = [i for i in raw_keep if i in batch]
+    drop = [i for i in raw_drop if i in batch]
     pending = v.get("pending", [])
-    stray = [i for i in (v.get("keep", []) + v.get("drop", [])) if i not in batch]
+    stray = [i for i in (raw_keep + raw_drop) if i not in batch]
     cases = [(i, case_of(batch[i]["reason"])) for i in drop if case_of(batch[i]["reason"])]
 
     problems = []

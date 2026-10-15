@@ -3,7 +3,7 @@
 import json, urllib.request
 
 nid = "6aba6a39" + "000000001b02c8a6"
-note = open(r"D:\Work\小红书点赞分析\b_answers\%s.txt" % nid, encoding="utf-8").read()[:5000]
+note = open(r"<PROJECT_DIR>\b_answers\%s.txt" % nid, encoding="utf-8").read()[:5000]
 print("全文长度:", len(note))
 sys_prompt = "你是小红书笔记筛选二审员。只输出一行 JSON：{\"verdict\":\"keep|drop\",\"reason\":\"一句话理由\"}"
 body = json.dumps({"model": "fast",

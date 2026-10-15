@@ -10,7 +10,7 @@ SHORT_SYS = ("你是小红书笔记筛选二审员。用户是小学心理健康
 
 out = []
 for nid, ncut in [("6a70512800000000060066a3", 3000), ("6ab79ef300000000150042cb", 3000)]:
-    note = open(r"D:\Work\小红书点赞分析\b_answers\%s.txt" % nid, encoding="utf-8").read()[:ncut]
+    note = open(r"<PROJECT_DIR>\b_answers\%s.txt" % nid, encoding="utf-8").read()[:ncut]
     body = json.dumps({"model": "fast",
                        "messages": [{"role": "system", "content": SHORT_SYS},
                                     {"role": "user", "content": "全文如下（请判定，只输出一行JSON）：\n%s" % note}],
@@ -35,6 +35,6 @@ for nid, ncut in [("6a70512800000000060066a3", 3000), ("6ab79ef300000000150042cb
         print(nid, "请求异常:", str(e)[:200])
         out.append({"id": nid, "err": str(e)[:120]})
 
-json.dump(out, open(r"D:\Work\小红书点赞分析\_系统数据\second_patch.json", "w", encoding="utf-8"),
+json.dump(out, open(r"<PROJECT_DIR>\_系统数据\second_patch.json", "w", encoding="utf-8"),
           ensure_ascii=False, indent=1)
 print("落盘:", out)

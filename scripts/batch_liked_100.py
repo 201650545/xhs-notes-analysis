@@ -14,8 +14,8 @@ import urllib.request
 API = "http://127.0.0.1:10086/command"
 SESSION = "xhs"
 HOME = "https://www.xiaohongshu.com/explore"
-SNAP = r"D:\Work\小红书点赞分析\_系统数据\_liked_snapshot.json"
-OUT_DIR = r"D:\Work\小红书点赞分析\b_answers"
+SNAP = r"<PROJECT_DIR>\_系统数据\_liked_snapshot.json"
+OUT_DIR = r"<PROJECT_DIR>\b_answers"
 LIMIT = int(sys.argv[1]) if len(sys.argv) > 1 else 100
 OFFSET = int(sys.argv[2]) if len(sys.argv) > 2 else 0
 

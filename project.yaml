@@ -4,7 +4,7 @@ type: tool
 status: active
 visibility: private
 
-local_path: D:\Work\小红书点赞分析\
+local_path: <PROJECT_DIR>\
 aliases:
   - 小红书点赞每日总结
   - xhs-likes-daily

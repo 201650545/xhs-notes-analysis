@@ -1,5 +1,5 @@
 $ErrorActionPreference = 'Stop'
-$base = 'D:\Work\小红书点赞分析'
+$base = '<PROJECT_DIR>'
 $data = Join-Path $base '_系统数据'
 $enc = New-Object Text.UTF8Encoding($false)
 $kb = [IO.File]::ReadAllText((Join-Path $data '_knowledge_base.json'), $enc) | ConvertFrom-Json

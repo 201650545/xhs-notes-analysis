@@ -1,6 +1,9 @@
+import os, sys as _s
+_s.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _credentials import get_cred  # noqa: E402
 import json, re
 
-UID = '6292cc04000000002102272a'
+UID = get_cred("XHS_USER_ID", "<XHS_USER_ID>")
 
 def extract_note_id(link):
     if not link:

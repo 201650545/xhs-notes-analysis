@@ -1,8 +1,8 @@
-import sqlite3
+﻿import sqlite3
 import json
 import os
 
-db_path = r'C:\Users\郭永涛\.local\share\opencode\opencode.db'
+db_path = r'C:\Users\<USER_NAME>\.local\share\opencode\opencode.db'
 conn = sqlite3.connect(db_path)
 cursor = conn.cursor()
 
@@ -34,8 +34,8 @@ def get_session_transcript(session_id):
         })
     return entries
 
-out_dir_work = r'D:\Work\小红书点赞分析\会话记录导出'
-out_dir_desk = r'D:\360MoveData\Users\郭永涛\Desktop\OpenCode会话记录'
+out_dir_work = r'<PROJECT_DIR>\会话记录导出'
+out_dir_desk = r'D:\360MoveData\Users\<USER_NAME>\Desktop\OpenCode会话记录'
 os.makedirs(out_dir_work, exist_ok=True)
 os.makedirs(out_dir_desk, exist_ok=True)
 
@@ -46,7 +46,7 @@ review_sessions = [
 ]
 
 review_md = ['# 小红书笔记积压一审 A/B 组及三审决议完整记录\n']
-review_md.append('> 导出时间：2026-10-13 00:05\n> 关联项目：`D:\\Work\\小红书点赞分析`\n\n---\n')
+review_md.append('> 导出时间：2026-10-13 00:05\n> 关联项目：`<PROJECT_DIR>`\n\n---\n')
 
 for sid, title in review_sessions:
     review_md.append(f'## 一、{title} (Session ID: `{sid}`)\n\n')
@@ -80,7 +80,7 @@ for mtc, mdata, pdata in parent_rows:
 
 # 附录相关临时文件
 for fn in ['xhs_batch1_merged.json', 'xhs_batch1_out0.json', 'xhs_batch1_out1.json']:
-    fp = os.path.join(r'C:\Users\郭永涛\AppData\Local\Temp', fn)
+    fp = os.path.join(r'C:\Users\<USER_NAME>\AppData\Local\Temp', fn)
     if os.path.exists(fp):
         with open(fp, 'r', encoding='utf-8') as f:
             content = f.read()
@@ -102,7 +102,7 @@ eli_sessions = [
 ]
 
 eli_md = ['# 艾丽方法论提炼 A/B/C 组完整记录\n']
-eli_md.append('> 导出时间：2026-10-13 00:05\n> 关联项目：`D:\\Work\\小红书点赞分析\\_系统数据\\ela_notes`\n\n---\n')
+eli_md.append('> 导出时间：2026-10-13 00:05\n> 关联项目：`<PROJECT_DIR>\\_系统数据\\ela_notes`\n\n---\n')
 
 for sid, title in eli_sessions:
     eli_md.append(f'## 一、{title} (Session ID: `{sid}`)\n\n')
@@ -115,7 +115,7 @@ for sid, title in eli_sessions:
             eli_md.append(f'**[调用工具 {item["tool_name"]}]**\n```json\n{json.dumps(item["tool_input"], ensure_ascii=False, indent=2)}\n```\n\n')
 
 for fn in ['ela_method_A.json', 'ela_method_B.json', 'ela_method_C.json']:
-    fp = os.path.join(r'C:\Users\郭永涛\AppData\Local\Temp', fn)
+    fp = os.path.join(r'C:\Users\<USER_NAME>\AppData\Local\Temp', fn)
     if os.path.exists(fp):
         with open(fp, 'r', encoding='utf-8') as f:
             content = f.read()

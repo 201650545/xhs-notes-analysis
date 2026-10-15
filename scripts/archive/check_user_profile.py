@@ -10,7 +10,7 @@ def call(action, args=None, session='xhs'):
     with urllib.request.urlopen(req, timeout=30) as resp:
         return json.loads(resp.read().decode('utf-8'))
 
-call('navigate', {'url': 'https://www.xiaohongshu.com/user/profile/6292cc04000000002102272a'})
+call('navigate', {'url': 'https://www.xiaohongshu.com/user/profile/<XHS_USER_ID>'})
 time.sleep(5)
 
 check_code = """

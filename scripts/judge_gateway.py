@@ -17,7 +17,7 @@ import sys
 import time
 import urllib.request
 
-BASE = r"D:\Work\小红书点赞分析"
+BASE = r"<PROJECT_DIR>"
 DATA = os.path.join(BASE, "_系统数据")
 ANS = os.path.join(BASE, "b_answers")
 GW3100 = "http://127.0.0.1:3100/v1/chat/completions"

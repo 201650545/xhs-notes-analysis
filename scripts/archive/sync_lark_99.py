@@ -1,3 +1,6 @@
+import os, sys as _s
+_s.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _credentials import get_cred  # noqa: E402
 # -*- coding: utf-8 -*-
 """把 b_answers 的 v3 深度分析同步到飞书多维表格。
    字段：标题/序号/作者/点赞数/链接/内容类型/分类/大类/主题标签/点点总结/
@@ -9,12 +12,12 @@
 """
 import json, os, subprocess, datetime, sys
 
-BASE = r"D:\Work\小红书点赞分析"
+BASE = r"<PROJECT_DIR>"
 DATA = os.path.join(BASE, "_系统数据")  # 管线 JSON 系统数据（2026-09-28 起统一收纳，勿移出）
 ANS = os.path.join(BASE, "b_answers")
-CLI = r"C:\Users\郭永涛\.trae-cn\plugins\trae-remote-official\lark\1.0.5\bin\lark-cli.exe"
-BASE_TOKEN = "StmDbTXQWaujshs9NpIc3UFpnAc"
-TABLE_ID = "tblcDvErvsmeynMz"
+CLI = r"C:\Users\<USER_NAME>\.trae-cn\plugins\trae-remote-official\lark\1.0.5\bin\lark-cli.exe"
+BASE_TOKEN = get_cred("FEISHU_BASE_TOKEN", "<FEISHU_BASE_TOKEN>")
+TABLE_ID = get_cred("FEISHU_TABLE_ID", "<FEISHU_TABLE_ID>")
 SEQ_START = 119
 BATCH_DATE = datetime.datetime(2026, 9, 23)
 VALID_CATS = {"A工具资源", "B技术实操", "C创作设计", "D搞钱变现", "E学习成长", "F视野观点", "G生活其他"}

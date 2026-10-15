@@ -1,3 +1,6 @@
+import os, sys as _s
+_s.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _credentials import get_cred  # noqa: E402
 # -*- coding: utf-8 -*-
 """最终采集：scrollTop + wheel 组合驱动虚拟列表，持续累积抓token链接。
 页面当前已在第2页附近，不重载。"""
@@ -6,14 +9,14 @@ import sys
 import time
 import urllib.request
 
-sys.path.insert(0, r"D:\Work\小红书点赞分析\scripts")
+sys.path.insert(0, r"<PROJECT_DIR>\scripts")
 from batch_final import ev, API, SESSION
 
-BASE = r"D:\Work\小红书点赞分析"
+BASE = r"<PROJECT_DIR>"
 
 EXTRACT_JS = r"""
 (() => {
-  const uid = "6292cc04000000002102272a";
+  const uid = get_cred("XHS_USER_ID", "<XHS_USER_ID>");
   const items = [];
   document.querySelectorAll("section.note-item, div.note-item").forEach((c) => {
     const a = c.querySelector("a.cover") || c.querySelector("a");

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """核查20条三件不齐：台账/映射/全文/新任务records四处状态"""
 import json, os
-BASE = r"D:\Work\小红书点赞分析"
+BASE = r"<PROJECT_DIR>"
 ledger = json.load(open(os.path.join(BASE, "_系统数据", "_routing.json"), encoding="utf-8"))
 mapping = json.load(open(os.path.join(BASE, "_系统数据", "_lark_map.json"), encoding="utf-8"))
 ANS = os.path.join(BASE, "b_answers")

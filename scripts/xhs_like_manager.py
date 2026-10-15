@@ -30,10 +30,12 @@
 依赖：Kimi WebBridge 守护进程 127.0.0.1:10086 + Chrome 已登录小红书
 """
 import json, time, random, urllib.request, os, sys, argparse, datetime, traceback, subprocess
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _credentials import get_cred  # noqa: E402
 
 API = "http://127.0.0.1:10086/command"
 DEFAULT_SESSION = "xhs-mgr"
-UID = "6292cc04000000002102272a"
+UID = get_cred("XHS_USER_ID", "<XHS_USER_ID>")
 PROFILE_URL = "https://www.xiaohongshu.com/user/profile/%s" % UID
 
 KEEP_RECENT = 100                 # 最近 N 篇保留
@@ -45,7 +47,7 @@ UNLIKE_DELAY = (3.5, 7.0)         # 取消点赞随机间隔
 PAGES_PER_CHUNK = 8               # 每次 evaluate 连续拉取页数
 MAX_ITEMS = 4000
 
-BASE_DIR = r"D:\Work\小红书点赞分析"
+BASE_DIR = r"<PROJECT_DIR>"
 DATA_DIR = os.path.join(BASE_DIR, "_系统数据")  # 管线 JSON 系统数据（2026-09-28 起统一收纳，勿移出）
 WB_EXE = os.path.expanduser(r"~\.kimi-webbridge\bin\kimi-webbridge.exe")
 PROGRESS_FILE = os.path.join(DATA_DIR, "_unlike_progress.json")
@@ -65,6 +67,12 @@ def log(msg):
             f.write(line + "\n")
     except Exception:
         pass
+
+
+def has_analysis(nid):
+    """安全落盘前置检查：取消点赞前确认该笔记已存在分析全文。
+    GPT-6 审查 20261015 P0-3：任务 A/B 取消点赞前必须已落盘，否则保留点赞。"""
+    return os.path.isfile(os.path.join(ANSWER_DIR, nid + ".txt"))
 
 
 # ---------------- WebBridge ----------------
@@ -339,11 +347,15 @@ def task_unlike_old(xhs, quota_override=None):
     targets = [it for it in reversed(items[KEEP_RECENT:]) if it["id"] not in cancelled]
     log("待取消存量：%d | 今日配额：%d | 已取消：%d" % (len(targets), quota, len(cancelled)))
 
-    done = fail_streak = 0
+    done = fail_streak = skipped_no_analysis = 0
     for it in targets:
         if done >= quota:
             break
         nid = it["id"]
+        # P0-3（2026-10-15）：安全落盘前置检查——没有分析全文的笔记不取消，保留点赞
+        if not has_analysis(nid):
+            skipped_no_analysis += 1
+            continue
         r = xhs.unlike(nid)
         if r.get("ok"):
             cancelled.add(nid)
@@ -361,8 +373,8 @@ def task_unlike_old(xhs, quota_override=None):
             if fail_streak >= 5:
                 log("连续失败 5 次，终止本轮（可能触发风控）"); break
             time.sleep(5)
-    log("任务A完成：今日取消 %d，累计取消 %d，剩余点赞约 %d" % (
-        done, len(cancelled), total - len(cancelled)))
+    log("任务A完成：今日取消 %d，累计取消 %d，剩余点赞约 %d（其中无分析保留 %d）" % (
+        done, len(cancelled), total - len(cancelled), skipped_no_analysis))
 
 
 # ---------------- 任务 B ----------------
@@ -472,12 +484,14 @@ def task_process_new(xhs):
             else:
                 tries = fail_counts.get(nid, 0) + 1
                 if tries >= MAX_ANALYZE_ATTEMPTS:
-                    # 连续多轮分析失败：放弃分析，按“处理完即取消”直接取消，不留死链
-                    rec["status"] = "giveup_cancel"
-                    rec["detail"] = "分析 %d 次均失败，放弃分析直接取消" % tries
-                    pending_unlike.append(nid); processed.add(nid)
+                    # P0-3（2026-10-15，GPT-6 建议）：分析失败 N 次后不再直接取消点赞。
+                    # 改为保留点赞 + 标记 giveup_keep，由人工决定是否最终取消。
+                    # 避免"未分析就取消"导致高价值笔记永久丢失。
+                    rec["status"] = "giveup_keep"
+                    rec["detail"] = "分析 %d 次均失败，保留点赞等待人工处理" % tries
+                    processed.add(nid)
                     fail_counts.pop(nid, None)
-                    log("    分析失败（第 %d 次），放弃分析直接取消" % tries)
+                    log("    分析失败（第 %d 次），保留点赞待人工处理（不取消）" % tries)
                 else:
                     fail_counts[nid] = tries
                     rec["status"] = "failed"
@@ -507,6 +521,11 @@ def task_process_new(xhs):
             save_json(NEW_TASKS_FILE, state)
             return
         for nid in pending_unlike:
+            # P0-3（2026-10-15）：取消前再次确认安全落盘，避免意外取消未分析笔记
+            if not has_analysis(nid):
+                log("  B 跳过（无分析全文）：%s（保留点赞）" % nid)
+                processed.discard(nid)
+                continue
             r = xhs.unlike(nid)
             if r.get("ok"):
                 pending_cancel.discard(nid)

@@ -21,7 +21,7 @@
 """
 import os, re, json, sys, time, random, argparse, datetime, subprocess, urllib.request
 
-BASE = r"D:\Work\小红书点赞分析"
+BASE = r"<PROJECT_DIR>"
 DATA = os.path.join(BASE, "_系统数据")  # 管线 JSON 系统数据（2026-09-28 起统一收纳，勿移出）
 KB_FILE = os.path.join(DATA, "_knowledge_base.json")
 STATE_FILE = os.path.join(DATA, "_review_state.json")

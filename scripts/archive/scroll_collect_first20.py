@@ -1,3 +1,6 @@
+import os, sys as _s
+_s.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _credentials import get_cred  # noqa: E402
 # -*- coding: utf-8 -*-
 """重启后重跑：CDP物理滚轮采集最早20条。
 虚拟列表会回收DOM，用merged累积；wheel响应超时忽略。"""
@@ -6,16 +9,16 @@ import sys
 import time
 import urllib.request
 
-sys.path.insert(0, r"D:\Work\小红书点赞分析\scripts")
+sys.path.insert(0, r"<PROJECT_DIR>\scripts")
 from batch_final import cmd, ev, API, SESSION
 
-BASE = r"D:\Work\小红书点赞分析"
-LIKED = "https://www.xiaohongshu.com/user/profile/6292cc04000000002102272a?tab=liked"
-UID = "6292cc04000000002102272a"
+BASE = r"<PROJECT_DIR>"
+LIKED = "https://www.xiaohongshu.com/user/profile/<XHS_USER_ID>?tab=liked"
+UID = get_cred("XHS_USER_ID", "<XHS_USER_ID>")
 
 EXTRACT_JS = r"""
 (() => {
-  const uid = "6292cc04000000002102272a";
+  const uid = get_cred("XHS_USER_ID", "<XHS_USER_ID>");
   const items = [];
   document.querySelectorAll("section.note-item, div.note-item").forEach((c) => {
     const a = c.querySelector("a.cover") || c.querySelector("a");

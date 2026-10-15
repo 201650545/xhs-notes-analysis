@@ -3,7 +3,7 @@
 用法：python merge_verdicts.py _系统数据/verdicts_gateway_<ts>.json"""
 import json, os, sys
 
-BASE = r"D:\Work\小红书点赞分析"
+BASE = r"<PROJECT_DIR>"
 gw = json.load(open(sys.argv[1] if len(sys.argv) > 1 else "", encoding="utf-8")) \
     if len(sys.argv) > 1 else None
 

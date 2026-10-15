@@ -1,3 +1,6 @@
+import os, sys as _s
+_s.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _credentials import get_cred  # noqa: E402
 # -*- coding: utf-8 -*-
 import json, sys, time, urllib.request
 
@@ -13,7 +16,7 @@ def evaluate(code):
 
 JS = r"""
 (() => {
-  const uid = "6292cc04000000002102272a";
+  const uid = get_cred("XHS_USER_ID", "<XHS_USER_ID>");
   const items = [];
   const cards = document.querySelectorAll("section.note-item, div.note-item");
   cards.forEach((c) => {

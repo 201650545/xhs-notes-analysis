@@ -11,7 +11,7 @@ import os
 import sys
 import time
 
-BASE = r"D:\Work\小红书点赞分析"
+BASE = r"<PROJECT_DIR>"
 sys.path.insert(0, os.path.join(BASE, "scripts"))
 os.chdir(os.path.join(BASE, "scripts"))
 

@@ -9,7 +9,7 @@ import urllib.request
 API = "http://127.0.0.1:10086/command"
 SESSION = "xhs"
 HOME = "https://www.xiaohongshu.com/explore"
-ITEMS = r"D:\Work\小红书点赞分析\_liked_list_now.json"
+ITEMS = r"<PROJECT_DIR>\_liked_list_now.json"
 OUT_DIR = r"D:/workbuddy 工作空间/点点分析结果/raw2_20260923"
 
 REFUSE = ["无法直接访问", "无法访问小红书", "暂时无法为您总结", "我目前无法", "请提供具体", "可以尝试以下方法"]
