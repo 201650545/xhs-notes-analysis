@@ -1,0 +1,26 @@
+id: xhs-likes-analysis
+name: 小红书点赞分析
+type: tool
+status: active
+visibility: private
+
+local_path: D:\Work\小红书点赞分析\
+aliases:
+  - 小红书点赞每日总结
+  - xhs-likes-daily
+  - 点点分析
+
+sources:
+  overview: docs/00-项目总览.md
+  tasks: 00_项目驾驶舱_可视化中心/知识库看板.base
+  sop: docs/02-自动任务完整流程方法.md
+  pitfalls: docs/03-踩坑记录与治理对策.md
+  prompts: docs/04-问点点深度提问模板.md
+  dashboard: 00_项目驾驶舱_可视化中心/知识库总览.md
+
+handbook:
+  version: v1.0
+  overrides: null
+
+created_at: 2026-09-22
+updated_at: 2026-09-24

@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# 本地依赖
+_vendor/
+
+# 运行日志
+logs/
+
+# 会话记录导出（临时）
+会话记录导出/
+
+# 个人数据（含账号 UID / cookies / 操作记录）—— 全部 _系统数据 不公开
+_系统数据/
+
+# 笔记分析全文（小红书笔记内容，可能涉版权，不公开）
+b_answers/
+
+# 浏览器扩展存储
+*.cookie
+.env
+.env.local
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# bat 文件可能含本地路径
+*.bat
+
+# 夸克网盘 skill 缓存
+scripts/.quarkclouddrive/

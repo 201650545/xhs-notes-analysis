@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Mono — 小红书点赞知识库 · 99 篇的形状</title>
+<style>
+  :root{--bg:#F0EFEB;--ink:#1C1C1A;--muted:#8F8E88;--faint:#C6C5BF;--grid:#DEDDD6}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);font-family:'Inter','PingFang SC','Microsoft YaHei',sans-serif;color:var(--ink);padding:40px;-webkit-font-smoothing:antialiased}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px;max-width:1100px;margin:0 auto}
+  .card{background:var(--bg);border-radius:24px;padding:28px 28px 20px}
+  .card.wide{grid-column:1/-1}
+  h2{font-weight:700;font-size:16.5px;letter-spacing:-.01em;margin-bottom:3px}
+  .sub{font-size:11.5px;color:var(--muted);margin-bottom:14px}
+  .src{font-size:9.5px;color:var(--faint);margin-top:10px;letter-spacing:.08em;font-weight:500}
+  .badge{display:inline-block;font-size:9px;font-weight:700;letter-spacing:.08em;
+    padding:3px 10px;border-radius:99px;margin-bottom:10px;border:1px dashed #B0AFA9;color:#8F8E88}
+  svg{width:100%;max-height:340px;display:block;margin:0 auto}
+  svg text{font-family:'Inter','PingFang SC','Microsoft YaHei',sans-serif}
+  .pop{transform-box:fill-box;transform-origin:center;animation:pop .5s cubic-bezier(.2,.7,.3,1.3) both}
+  @keyframes pop{from{transform:scale(0)}to{transform:none}}
+  .fade{animation:fade .9s ease both}
+  @keyframes fade{from{opacity:0}}
+  .draw{stroke-dasharray:1;stroke-dashoffset:1;animation:draw 1s cubic-bezier(.4,0,.2,1) both}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  .pagehead{max-width:1100px;margin:0 auto 26px;padding:0 4px}
+  .pagehead h1{font-size:22px;letter-spacing:-.01em;font-weight:800}
+  .pagehead p{font-size:12px;color:#8F8E88;margin-top:5px;line-height:1.7}
+  @media (prefers-reduced-motion: reduce){
+    .pop,.fade,.draw{animation:none!important}
+  }
+</style>
+</head>
+<body>
+<div class="pagehead">
+  <h1>小红书点赞知识库 · 99 篇的形状</h1>
+  <p>数据全部来自本地知识库索引 _系统数据/_knowledge_base.json（2026-09-23 建库，2026-09-27 出图），无演示数据。视觉模板 Lieflat Charts：F1 Rung Bars / F5 Tick Rows / L14 Hundred Field，Mono 单一色系，纯 SVG 可离线。</p>
+</div>
+<div class="grid2">
+
+  <!-- F1 · rung bars（七大类，1 档 = 1 篇） -->
+  <div class="card">
+    <span class="badge">LUPI 基础型 · F1 柱状</span>
+    <h2>学习成长类最多，99 篇铺满七个方向</h2>
+    <div class="sub">1 档 = 1 篇 · A–G 人工大类 · 截至 2026-09-23 建库</div>
+    <svg id="rungs" viewBox="0 0 400 320" preserveAspectRatio="xMidYMid meet"></svg>
+    <div class="src">F1 RUNG BARS · MONO · 小红书点赞知识库</div>
+  </div>
+
+  <!-- F5 · tick rows（Top8 标签，1 tick = 1 次标注） -->
+  <div class="card">
+    <span class="badge">LUPI 基础型 · F5 横向条形</span>
+    <h2>VibeCoding 居标签热榜首位，英语与副业紧随其后</h2>
+    <div class="sub">1 根刻度 = 1 篇被标注 · Top 8（全库共 212 个标签）</div>
+    <svg id="tickrows" viewBox="0 0 400 320" preserveAspectRatio="xMidYMid meet"></svg>
+    <div class="src">F5 TICK ROWS · MONO · 标签词频</div>
+  </div>
+
+  <!-- L14 · hundred field（视频 75 / 图文 24，1 点 = 1 篇） -->
+  <div class="card">
+    <span class="badge pair">LUPI 编辑型 · L14 单位点阵</span>
+    <h2>四分之三的点赞笔记是视频</h2>
+    <div class="sub">1 点 = 1 篇 · 视频 75 / 图文 24 · 共 99 篇（非整百，不凑假点位）</div>
+    <svg id="hundredfield" viewBox="0 0 400 320" preserveAspectRatio="xMidYMid meet"></svg>
+    <div class="src">L14 HUNDRED FIELD · MONO · 笔记形态构成</div>
+  </div>
+
+</div>
+<script>
+// ── shared Mono tokens（与 lieflat-charts gallery 同源，内联） ──
+const INK='#1C1C1A',PAPER='#F0EFEB',MUTED='#8F8E88',GRID='#DEDDD6';
+const NS='http://www.w3.org/2000/svg';
+const el=(p,t,a)=>{const n=document.createElementNS(NS,t);for(const k in a)n.setAttribute(k,a[k]);p.appendChild(n);return n};
+const txt=(p,a,s)=>{const n=el(p,'text',a);n.textContent=s;return n};
+const tip=(n,s)=>{const t=document.createElementNS(NS,'title');t.textContent=s;n.appendChild(t)};
+const rnd=(i,k)=>Math.abs(((i*73856093)^(k*19349663))%1000)/1000;
+const D2R=Math.PI/180;
+const pol=(cx,cy,r,deg)=>[cx+r*Math.cos(deg*D2R),cy+r*Math.sin(deg*D2R)];
+const obsReveal=(id,fn)=>{
+  const n=document.getElementById(id);
+  const go=()=>{n.innerHTML='';fn(n)};
+  const io=new IntersectionObserver(es=>{if(es[0].isIntersecting){go();io.disconnect()}},{threshold:.15});
+  io.observe(n);
+  n.style.cursor='pointer';
+  n.addEventListener('click',go);
+};
+
+// ════ F1 · rung bars · 七大类（真实数据，骨架取自 basics-gallery B1） ════
+(()=>{
+const FULL={A:'A 工具资源',B:'B 技术实操',C:'C 创作设计',D:'D 搞钱变现',E:'E 学习成长',F:'F 视野观点',G:'G 生活其他'};
+const D=[['A 工具',17],['B 实操',15],['C 创作',8],['D 变现',18],['E 学习',20],['F 观点',12],['G 生活',9]];
+obsReveal('rungs',s=>{
+  const x0=i=>38+i*54,base=266,step=5.6,HW=14;
+  D.forEach(([name,v],i)=>{
+    const x=x0(i);
+    for(let k=0;k<v;k++){
+      const y=base-k*step,w=HW-1.5+rnd(k+1,i+2)*3;
+      el(s,'line',{x1:x-w,y1:y,x2:x+w,y2:y,stroke:INK,'stroke-width':1,
+        opacity:.5+rnd(k+2,i+4)*.5,class:'fade',style:`animation-delay:${i*.08+k*.012}s`});
+      if(k%5===4)el(s,'circle',{cx:x+HW+4.5,cy:y,r:.8,fill:'#C6C5BF',
+        class:'fade',style:`animation-delay:${i*.08+k*.012}s`});
+    }
+    const topY=base-(v-1)*step;
+    const num=txt(s,{x,y:topY-10,'font-size':11,'font-weight':800,fill:INK,'text-anchor':'middle',
+      class:'fade',style:`animation-delay:${.4+i*.08}s`},v);
+    tip(num,`${FULL[name.slice(0,1)]} — ${v} 篇`);
+    txt(s,{x,y:base+18,'font-size':7.5,'font-weight':700,fill:MUTED,'text-anchor':'middle',
+      'letter-spacing':'.04em',class:'fade',style:`animation-delay:${i*.08}s`},name);
+  });
+  el(s,'line',{x1:24,y1:base+4,x2:378,y2:base+4,stroke:GRID,'stroke-width':.8,class:'fade'});
+  txt(s,{x:200,y:306,'font-size':7,'font-weight':600,fill:'#B0AFA9','text-anchor':'middle',
+    'letter-spacing':'.12em',class:'fade',style:'animation-delay:.9s'},
+    'ONE RUNG = ONE NOTE · DOT MARKS EVERY FIFTH');
+});
+})();
+
+// ════ F5 · tick rows · Top8 标签（真实数据，骨架取自 basics-gallery C1） ════
+(()=>{
+const D=[['VibeCoding',9],['英语',8],['Skill',7],['副业',7],['免费模型',5],['Jev',5],['开源',5],['商业认知',5]];
+obsReveal('tickrows',s=>{
+  const y0=i=>44+i*30.5,X0=104,PX=15.5;
+  D.forEach(([name,v],i)=>{
+    const y=y0(i);
+    txt(s,{x:94,y:y+3,'font-size':8,'font-weight':700,fill:'#6A6963','text-anchor':'end',
+      'letter-spacing':'.04em',class:'fade',style:`animation-delay:${i*.08}s`},name);
+    el(s,'line',{x1:X0,y1:y+9,x2:X0+9*PX,y2:y+9,stroke:GRID,'stroke-width':.6,
+      class:'fade',style:`animation-delay:${i*.08}s`});
+    for(let k=0;k<v;k++){
+      const x=X0+k*PX+PX/2,h=9+rnd(k+1,i+2)*6;
+      el(s,'line',{x1:x,y1:y+9,x2:x,y2:y+9-h,stroke:INK,'stroke-width':.9,
+        opacity:.55+rnd(k+3,i+5)*.45,class:'fade',style:`animation-delay:${i*.08+k*.012}s`});
+      if(k%5===4)el(s,'circle',{cx:x,cy:y+13,r:.8,fill:'#C6C5BF',
+        class:'fade',style:`animation-delay:${i*.08+k*.012}s`});
+    }
+    const lab=txt(s,{x:X0+v*PX+10,y:y+4,'font-size':11,'font-weight':800,fill:INK,
+      class:'fade',style:`animation-delay:${.4+i*.08}s`},v);
+    tip(lab,`#${name} — ${v} 篇标注`);
+  });
+  txt(s,{x:200,y:308,'font-size':7,'font-weight':600,fill:'#B0AFA9','text-anchor':'middle',
+    'letter-spacing':'.12em',class:'fade',style:'animation-delay:.9s'},
+    'ONE TICK = ONE TAG MENTION · DOT MARKS EVERY FIFTH');
+});
+})();
+
+// ════ L14 · hundred field · 视频 75 / 图文 24（真实数据，骨架取自 lupi-gallery 14） ════
+(()=>{
+const SEG=[['视频',75,INK],['图文',24,'#8F8E88']];
+const POS=[[124,150],[286,150]];
+obsReveal('hundredfield',s=>{
+  [[0,1]].forEach(([a,b])=>{
+    el(s,'line',{x1:POS[a][0],y1:POS[a][1],x2:POS[b][0],y2:POS[b][1],
+      stroke:GRID,'stroke-width':.7,'stroke-dasharray':'2 5',class:'fade',
+      style:'animation-delay:.9s'});
+  });
+  SEG.forEach(([name,v,shade],ci)=>{
+    const [cx,cy]=POS[ci];
+    let edge=0;
+    for(let k=0;k<v;k++){
+      const a=k*137.508+ci*55;
+      const rr=4+Math.sqrt(k)*4.6+rnd(k+1,ci+2)*2.4;
+      edge=Math.max(edge,rr);
+      const [x,y]=pol(cx,cy,rr,a);
+      if(k%5===0)el(s,'line',{x1:cx,y1:cy,x2:x,y2:y,stroke:'#CDCCC5','stroke-width':.6,
+        class:'fade',style:`animation-delay:${ci*.14+k*.012}s`});
+      const dot=el(s,'circle',{cx:x,cy:y,r:1.4+rnd(k+2,ci+3)*1.4,fill:shade,opacity:.9,
+        class:'pop',style:`animation-delay:${ci*.14+k*.012}s`});
+      tip(dot,`${name} — ${v} 篇中的 1 篇`);
+    }
+    el(s,'circle',{cx,cy,r:2.4,fill:INK,class:'pop',style:`animation-delay:${ci*.14}s`});
+    txt(s,{x:cx,y:cy+edge+13,'font-size':9,'font-weight':800,fill:INK,'text-anchor':'middle',
+      'letter-spacing':'.06em',style:`paint-order:stroke;stroke:${PAPER};stroke-width:3px;animation-delay:${.5+ci*.12}s`,
+      class:'fade'},`${name} · ${v}`);
+  });
+  txt(s,{x:200,y:314,'font-size':7,'font-weight':600,fill:'#B0AFA9','text-anchor':'middle',
+    'letter-spacing':'.12em',class:'fade',style:'animation-delay:1.3s'},'ONE DOT = ONE NOTE · 视频 75 + 图文 24 = 99');
+});
+})();
+</script>
+</body>
+</html>

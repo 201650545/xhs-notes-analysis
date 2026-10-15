@@ -1,0 +1,181 @@
+<#
+  Quark Drive backup: D:\Work + D:\记忆 + A档资料 + listenloop 轻量包.
+
+  Daily mirror (every 15 min since 2026-10-08):
+    - D:\Work            -> /Work库备份/每日镜像/Work
+    - D:\记忆            -> /Work库备份/每日镜像/记忆库镜像
+    - A档 12 目录        -> /Work库备份/每日镜像/重要资料/<目录名>
+    - listenloop 轻量包  -> robocopy 剥离 build/.dart_tool/.gradle/.idea/dist 后
+                            上传镜像目录 -> /Work库备份/每日镜像/重要资料/listenloop_镜像
+                  (content-hash instant-upload => unchanged files cost 0 traffic;
+                   cloud copy is additive, never deleted locally => undelete-safe)
+  Weekly snapshot (Sunday, or -ForceSnapshot):
+                  zip point-in-time archive -> /Work库备份/版本快照
+                  local copy kept under D:\Backup\Work快照, newest 8 retained
+                  (versioned rollback for accidental edit/delete/corruption)
+
+  FIDs are session-scoped, so target folders are located by browse at every run
+  (root -> Work库备份 -> 每日镜像 / 记忆库镜像 / 重要资料 / 版本快照), never hard-coded.
+
+  Logs: <scriptdir>\logs\backup_yyyy-MM-dd.txt
+  Usage: powershell -NoProfile -ExecutionPolicy Bypass -File backup_quark.ps1 [-MirrorOnly] [-ForceSnapshot]
+#>
+param(
+  [switch]$MirrorOnly,
+  [switch]$ForceSnapshot
+)
+$ErrorActionPreference = 'Stop'
+[Console]::OutputEncoding = [Text.Encoding]::UTF8
+$OutputEncoding = [Text.Encoding]::UTF8
+
+$cli       = 'c:\Users\郭永涛\.trae-cn\skills\quarkclouddrive\scripts\quark-drive.cjs'
+$nodeExe   = 'D:\Program Files\nodejs\node.exe'
+$src       = 'D:\Work'
+$srcMem    = 'D:\记忆'   # 2026-10-08 新增：第二个 Obsidian 仓库纳入每日镜像
+# 2026-10-08 A档拍板：小而珍贵资料纳入每日镜像（云端落 /每日镜像/重要资料/）
+$assetSources = @(
+  'D:\毕业论文', 'D:\ai-hub-memory', 'D:\项目', 'D:\口语训练',
+  'D:\微信记录', 'D:\数学录课', 'D:\石坳', 'D:\fade_20261007',
+  'D:\Remote-Coding-Control', 'D:\zcode数据储存',
+  'D:\meta-intelligence-facts', 'D:\feishu-data-hub'
+)
+# 2026-10-08 B档拍板：listenloop 只传轻量包（robocopy 镜像剥离构建产物后上传）
+$llSrc    = 'D:\listenloop'
+$llMirror = 'D:\Backup\listenloop_镜像'
+$llXd     = @('build', '.dart_tool', '.gradle', '.idea', 'dist', '.pub-cache', '.dart_tool_c', 'Pods')
+$localSnap = 'D:\Backup\Work快照'
+$logDir    = Join-Path $PSScriptRoot 'logs'
+$keep      = 8
+$today     = Get-Date
+$stamp     = $today.ToString('yyyyMMdd')
+New-Item -ItemType Directory -Force $logDir,$localSnap | Out-Null
+$log = Join-Path $logDir ("backup_{0}.txt" -f $today.ToString('yyyy-MM-dd'))
+$sid = [string][DateTimeOffset]::UtcNow.ToUnixTimeSeconds() + '-' + (-join (1..6 | ForEach-Object { '{0:x}' -f (Get-Random -Max 16) }))
+
+# 单实例互斥：计划任务与手动补跑不得并发上传同一目录
+$bkMutex = New-Object System.Threading.Mutex($false, 'Global\XHS_QuarkBackup')
+if (-not $bkMutex.WaitOne(0)) {
+  Add-Content -Path (Join-Path $logDir ("backup_{0}.txt" -f (Get-Date -Format 'yyyy-MM-dd'))) -Encoding UTF8 -Value ("[{0}] 另一个备份进程仍在运行，本次跳过" -f (Get-Date -Format 'HH:mm:ss'))
+  exit 0
+}
+
+function Write-Log($m){
+  $line = "[{0}] {1}" -f (Get-Date -Format 'HH:mm:ss'),$m
+  Add-Content -Path $log -Value $line -Encoding UTF8
+  Write-Host $line
+}
+
+function Find-QkFid($parent,$name){
+  $out = & $nodeExe $cli browse --parent-fid $parent --session-id $sid 2>&1
+  foreach($l in $out){
+    try { $j = ("$l" | ConvertFrom-Json) } catch { continue }
+    if($j.type -eq 'list' -and $j.data.filename -eq $name){ return $j.data.fid }
+  }
+  $tail = ($out | Select-Object -Last 3) -join ' | '
+  throw "folder not found: $name (parent=$parent). node output tail: $tail"
+}
+
+function Ensure-QkFolder($parent,$name){
+  # 2026-10-08 新增：不存在则创建，保证记忆库镜像目录自举
+  try { return Find-QkFid $parent $name } catch {}
+  Write-Log "create cloud folder: $name"
+  & $nodeExe $cli create-folder --dir-path $name --parent-fid $parent --session-id $sid 2>&1 | Out-Null
+  Start-Sleep -Seconds 2
+  return Find-QkFid $parent $name   # 创建失败时此处 throw，行为正确
+}
+
+function Invoke-QkUpload($path,$fid,$tag){
+  # 2026-10-08 补丁3（15分钟高频化前置）：上一轮 worker 未出 result 前不重发，
+  # 防止 detached worker 层并发上传同一目录（父脚本有 Mutex，worker 层没有）。
+  # 跳过无损失：上传幂等（内容哈希秒传），下一轮触发自动补传。
+  $tagFile = Join-Path $logDir ("pending_{0}.json" -f $tag)
+  $result  = Join-Path $logDir ("result_{0}.json" -f $tag)
+  if ((Test-Path $tagFile) -and -not (Test-Path $result)) {
+    # pending 超 2 小时无 result ⇒ 上一轮 worker 已死（断电/被杀/网络崩溃），判死重发；
+    # 2026-10-08 由 6h 缩短为 2h：实测小目录正常分钟级完成，3GB 大视频 2h 也足够。
+    $ageH = ((Get-Date) - (Get-Item $tagFile).LastWriteTime).TotalHours
+    if ($ageH -lt 2) {
+      Write-Log ("skip dispatch [{0}]: 上一轮上传仍在进行（pending {1:N1}h 未回执）" -f $tag, $ageH)
+      return $false
+    }
+    Write-Log ("stale dispatch [{0}]: pending 已 {1:N1}h 无回执，判 worker 已死，重发" -f $tag, $ageH)
+  }
+  Remove-Item $tagFile -Force -ErrorAction SilentlyContinue
+  Remove-Item $result -Force -ErrorAction SilentlyContinue
+
+  $payload = @{
+    cli = $cli; node = $nodeExe; path = $path; fid = $fid; sid = $sid
+    resultFile = $result; tag = $tag; logDir = $logDir
+  } | ConvertTo-Json -Compress
+
+  Write-Log "upload dispatch [$tag]: $path (detached)"
+  # 2026-10-08 修复：先落盘 payload，再把 pending 文件路径传给 worker。
+  # 根因：原先把含双引号的 JSON 直接塞进 Start-Process ArgumentList，
+  # PowerShell 5.1 参数重引用打碎 JSON ⇒ worker 第一行 JSON.parse 秒崩，
+  # result 永不产生（10/4-10/7 连续 4 天静默断链的根因）。
+  # 文件路径不含引号，无此风险；worker 端兼容内联 JSON 兜底。
+  # 2026-10-08 补丁2：Set-Content -Encoding UTF8 在 PS5.1 写 BOM ⇒ JSON.parse
+  # 报 Unexpected token '\uFEFF'（10/8 00:25 补跑复现）；改 .NET WriteAllText 无 BOM。
+  [System.IO.File]::WriteAllText($tagFile, $payload, (New-Object System.Text.UTF8Encoding($false)))
+  # -WindowStyle Hidden：无控制台窗口（禁弹窗红线）；不 -Wait，立即返回。
+  Start-Process -FilePath $nodeExe `
+    -ArgumentList @((Join-Path $PSScriptRoot 'quark_upload_worker.js'), $tagFile) `
+    -WindowStyle Hidden | Out-Null
+
+  return $true   # 立即返回成功；真实成败由 watchdog 事后判定
+}
+
+try {
+  Write-Log "===== backup begin sid=$sid MirrorOnly=$MirrorOnly ForceSnapshot=$ForceSnapshot ====="
+  $bk       = Find-QkFid '0' 'Work库备份'
+  $fMirror  = Find-QkFid $bk '每日镜像'
+  $fMem     = Ensure-QkFolder $fMirror '记忆库镜像'
+  $fAssets  = Ensure-QkFolder $fMirror '重要资料'
+  $mirrorOk = Invoke-QkUpload $src $fMirror 'mirror_work'
+  Invoke-QkUpload $srcMem $fMem 'mirror_mem' | Out-Null   # 2026-10-08 新增：记忆库双库镜像
+
+  # 2026-10-08 A档：小而珍贵资料循环 dispatch（tag=assets_<目录名>，云端自动建同名子目录）
+  foreach ($a in $assetSources) {
+    if (Test-Path $a) {
+      Invoke-QkUpload $a $fAssets ('assets_' + (Split-Path $a -Leaf)) | Out-Null
+    } else {
+      Write-Log "missing source, skip: $a"
+    }
+  }
+
+  # 2026-10-08 B档：listenloop 轻量包 = robocopy /MIR 剥离构建产物 → 上传镜像目录
+  if (Test-Path $llSrc) {
+    New-Item -ItemType Directory -Force $llMirror | Out-Null
+    $rc = Start-Process -FilePath 'robocopy.exe' `
+      -ArgumentList (@("`"$llSrc`"", "`"$llMirror`"", '/MIR', '/NFL', '/NDL', '/NJH', '/NJS', '/NP', '/XD') + ($llXd | ForEach-Object { "`"$_`"" })) `
+      -NoNewWindow -Wait -PassThru
+    if ($rc.ExitCode -ge 8) {
+      Write-Log ("robocopy listenloop FAILED exit={0}（跳过本轮轻量包上传）" -f $rc.ExitCode)
+    } else {
+      Write-Log ("robocopy listenloop ok exit={0}" -f $rc.ExitCode)
+      Invoke-QkUpload $llMirror $fAssets 'mirror_listenloop' | Out-Null
+    }
+  } else {
+    Write-Log "missing source, skip: $llSrc"
+  }
+
+  if($mirrorOk -and -not $MirrorOnly -and ($ForceSnapshot -or $today.DayOfWeek -eq 'Sunday')){
+    $fSnapDir = Find-QkFid $bk '版本快照'
+    $zip = Join-Path $localSnap ("work-{0}.zip" -f $stamp)
+    if(-not (Test-Path $zip)){
+      Write-Log "snapshot zipping -> $zip"
+      $tp = Start-Process -FilePath 'tar.exe' -ArgumentList @('-a','-cf',$zip,'-C',$src,'.') -NoNewWindow -Wait -PassThru
+      if($tp.ExitCode -ne 0){ throw "tar failed exit=$($tp.ExitCode)" }
+      Write-Log ("snapshot zip size: {0} MB" -f [math]::Round((Get-Item $zip).Length/1MB,1))
+    } else {
+      Write-Log "snapshot zip already exists, skip zipping"
+    }
+    Invoke-QkUpload $zip $fSnapDir 'snapshot' | Out-Null
+    $old = @(Get-ChildItem $localSnap -Filter 'work-*.zip' | Sort-Object Name -Descending | Select-Object -Skip $keep)
+    foreach($o in $old){ Remove-Item $o.FullName -Force; Write-Log "pruned local old snapshot: $($o.Name)" }
+  }
+  Write-Log "===== backup end ====="
+} catch {
+  Write-Log ("FATAL: " + ($_ | Out-String).Trim())
+  exit 1
+}
